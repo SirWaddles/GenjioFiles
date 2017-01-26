@@ -1,0 +1,17 @@
+security:
+    providers:
+        genjio_api:
+            id: genjio.api_userprovider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        api:
+            pattern: ^/
+            stateless: true
+            simple_preauth:
+                authenticator: genjio.api_authenticator
+            provider: genjio_api
+        main:
+            anonymous: ~

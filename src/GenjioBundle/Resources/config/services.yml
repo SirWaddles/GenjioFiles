@@ -1,0 +1,9 @@
+services:
+    genjio.api_authenticator:
+        class: GenjioBundle\Security\ApiKeyAuthenticator
+        public: false
+
+    genjio.api_userprovider:
+        class: GenjioBundle\Security\ApiUserProvider
+        public: false
+        arguments: [ '@doctrine.orm.default_entity_manager' ]
