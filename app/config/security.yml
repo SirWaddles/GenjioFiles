@@ -8,10 +8,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         api:
-            pattern: ^/
+            pattern: ^/(upload|api)
             stateless: true
             simple_preauth:
                 authenticator: genjio.api_authenticator
             provider: genjio_api
         main:
-            anonymous: ~
+            anonymous: true
