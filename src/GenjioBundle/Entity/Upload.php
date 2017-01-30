@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use \JsonSerializable;
 
 /**
  * API Access
@@ -41,6 +42,19 @@ class Upload
      */
     private $uploadName;
 
+    /**
+     * @ORM\Column(name="date_uploaded", type="datetime")
+     */
+    private $dateUploaded;
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId,
+            'name' => $this->uploadName,
+        ];
+    }
+
     public function getId()
     {
         return $this->id;
@@ -65,6 +79,7 @@ class Upload
     public function setUploadFile(File $upload = null)
     {
         $this->uploadFile = $upload;
+        $this->dateUploaded = new \DateTime();
         return $this;
     }
 

@@ -60,4 +60,16 @@ class UploadController extends Controller
             ]);
         return $form->getForm();
     }
+
+    /**
+     * @Route("/list", name="list")
+     * @Security("has_role('ROLE_API')")
+     */
+    public function listAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $uploadRepo = $em->getRepository('GenjioBundle:Upload');
+        $uploads = $uploadRepo->findBy(['user' => $this->getUser()]);
+        return new JsonResponse($uploads);
+    }
 }
