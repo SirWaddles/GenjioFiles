@@ -19,9 +19,7 @@ class UploadController extends Controller
     public function indexAction(Request $request)
     {
         // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
-        ]);
+        return $this->render('GenjioBundle:Default:view.html.twig', []);
     }
 
     /**
@@ -62,7 +60,7 @@ class UploadController extends Controller
     }
 
     /**
-     * @Route("/list", name="list")
+     * @Route("/api/list", name="list")
      * @Security("has_role('ROLE_API')")
      */
     public function listAction(Request $request)
@@ -71,5 +69,17 @@ class UploadController extends Controller
         $uploadRepo = $em->getRepository('GenjioBundle:Upload');
         $uploads = $uploadRepo->findBy(['user' => $this->getUser()]);
         return new JsonResponse($uploads);
+    }
+
+    /**
+     * @Route("/api/login", name="login")
+     */
+    public function loginAction(Request $request)
+    {
+        if ($this->isGranted('ROLE_API')) {
+            return new JsonResponse(['success' => true]);
+        } else {
+            return new JsonResponse(['success' => false]);
+        }
     }
 }

@@ -16,7 +16,7 @@ use \JsonSerializable;
  * @ORM\Table(name="uploads")
  * @Vich\Uploadable
  */
-class Upload
+class Upload implements JsonSerializable
 {
     /**
      * @var integer
@@ -50,8 +50,9 @@ class Upload
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId,
-            'name' => $this->uploadName,
+            'id' => $this->getId(),
+            'name' => $this->getUploadName(),
+            'dateUploaded' => $this->getDateUploaded()->format('Y-m-d'),
         ];
     }
 
@@ -92,5 +93,10 @@ class Upload
     {
         $this->uploadName = $uploadName;
         return $this;
+    }
+
+    public function getDateUploaded()
+    {
+        return $this->dateUploaded;
     }
 }
