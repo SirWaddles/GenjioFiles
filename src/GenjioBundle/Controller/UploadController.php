@@ -40,7 +40,7 @@ class UploadController extends Controller
             $em->flush();
             return new JsonResponse([
                 'filename' => $upload->getUploadName(),
-                'url' => 'https://i.genj.io/i/' . $upload->getUploadName(),
+                'url' => $request->getSchemeAndHttpHost() . "/i/" . $upload->getUploadName(),
                 'id' => $upload->getId(),
             ]);
         }
@@ -103,7 +103,7 @@ class UploadController extends Controller
     public function changePasswordAction(Request $request)
     {
         $requestObj = json_decode($request->getContent(), true);
-        $newPassword = password_hash($requestObj['new_password'], PASSWORD_DEFAULT);
+        $newPassword = password_hash($requestObj['newPassword'], PASSWORD_DEFAULT);
 
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
