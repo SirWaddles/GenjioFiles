@@ -41,6 +41,7 @@ class UploadController extends Controller
             return new JsonResponse([
                 'filename' => $upload->getUploadName(),
                 'url' => 'https://i.genj.io/i/' . $upload->getUploadName(),
+                'id' => $upload->getId(),
             ]);
         }
 
@@ -60,6 +61,30 @@ class UploadController extends Controller
     }
 
     /**
+     * @Route("/api/delete", name="delete")
+     * @Security("has_role('ROLE_API')")
+     * @Method("POST")
+     */
+    public function deleteAction(Request $request)
+    {
+        $requestObj = json_decode($request->getContent(), true);
+        $fileId = $requestObj['id'];
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository('GenjioBundle:Upload');
+
+        $upload = $repo->find($fileId);
+        if (!$upload) {
+            return new JsonResponse(['success' => false, 'error' => 'File not found']);
+        }
+        if ($upload->getUser()->getId() !== $this->getUser()->getId()) {
+            return new JsonResponse(['success' => false, 'error' => 'Incorrect permissions']);
+        }
+        $em->remove($upload);
+        $em->flush();
+        return new JsonResponse(['success' => true]);
+    }
+
+    /**
      * @Route("/api/list", name="list")
      * @Security("has_role('ROLE_API')")
      */
@@ -67,19 +92,52 @@ class UploadController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $uploadRepo = $em->getRepository('GenjioBundle:Upload');
-        $uploads = $uploadRepo->findBy(['user' => $this->getUser()]);
+        $uploads = $uploadRepo->getAllUploads($this->getUser());
         return new JsonResponse($uploads);
     }
 
     /**
-     * @Route("/api/login", name="login")
+     * @Route("/api/password", name="change_password")
+     * @Security("has_role('ROLE_API')")
+     */
+    public function changePasswordAction(Request $request)
+    {
+        $requestObj = json_decode($request->getContent(), true);
+        $newPassword = password_hash($requestObj['new_password'], PASSWORD_DEFAULT);
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $user->setPassword($newPassword);
+        $em->persist($user);
+        $em->flush();
+        return new JsonResponse(['success' => true]);
+    }
+
+    /**
+     * @Route("/login", name="login")
      */
     public function loginAction(Request $request)
     {
-        if ($this->isGranted('ROLE_API')) {
-            return new JsonResponse(['success' => true]);
-        } else {
-            return new JsonResponse(['success' => false]);
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository('GenjioBundle:User');
+
+        // Really no idea how to do this without the weird manual authentication.
+        // Exception listener maybe, but I dont know.
+        $apiKey = $request->headers->get('Genjio-API-Key');
+        $username = $request->headers->get('Genjio-API-Username');
+
+        $user = $repo->findOneBy(['username' => $username]);
+        if (!$user) {
+            $user = $repo->find($username);
+            if (!$user) {
+                return new JsonResponse(['success' => false, 'error' => 'User not found']);
+            }
         }
+
+        if (!password_verify($apiKey, $user->getPassword())) {
+            return new JsonResponse(['success' => false, 'error' => 'User not found']); // I don't really care about enumeration, but eh
+        }
+
+        return new JsonResponse(['success' => true, 'username' => $user->getId()]);
     }
 }

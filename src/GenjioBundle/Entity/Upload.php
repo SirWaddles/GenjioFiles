@@ -12,7 +12,7 @@ use \JsonSerializable;
 /**
  * API Access
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="GenjioBundle\Repository\UploadRepository")
  * @ORM\Table(name="uploads")
  * @Vich\Uploadable
  */
