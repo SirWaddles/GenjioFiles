@@ -7,3 +7,8 @@ services:
         class: GenjioBundle\Security\ApiUserProvider
         public: false
         arguments: [ '@doctrine.orm.default_entity_manager' ]
+
+    genjio.cors_listener:
+        class: GenjioBundle\Security\CorsListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
