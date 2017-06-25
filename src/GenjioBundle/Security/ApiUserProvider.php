@@ -23,7 +23,12 @@ class ApiUserProvider implements UserProviderInterface
     {
         $repo = $this->em->getRepository('GenjioBundle:User');
         $user = $repo->find($username);
-        if (!$user) throw new UsernameNotFoundException('User does not exist');
+        if (!$user) {
+            $user = $repo->findOneBy(['username' => $username]);
+            if (!$user) {
+                throw new UsernameNotFoundException('User does not exist');
+            }
+        }
         return $user;
     }
 

@@ -79,8 +79,10 @@ class Upload implements JsonSerializable
 
     public function setUploadFile(File $upload = null)
     {
+        if (!$this->getId()) {
+            $this->dateUploaded = new \DateTime();
+        }
         $this->uploadFile = $upload;
-        $this->dateUploaded = new \DateTime();
         return $this;
     }
 
